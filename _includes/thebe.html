@@ -1,0 +1,19 @@
+<!-- Configure and load Thebe !-->
+{%- if page.repo -%}
+<script type="text/x-thebe-config">
+	{
+        bootstrap: true,
+        requestKernel: true,
+	binderOptions: {
+            repo: "{{ page.repo }}" ,
+            ref: "{{ page.branch }}"
+        },
+        kernelOptions: {
+          name: "python3"
+        }
+	
+      }
+ </script>
+<script type="text/javascript" src="https://unpkg.com/thebe@latest"></script>
+
+{%- endif -%}
