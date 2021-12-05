@@ -1,0 +1,59 @@
+<form method="POST" action="{{ site.staticman_url }}" class="comment-form">
+  <input name="options[redirect]" type="hidden" value="{{ 'comment-success' | absolute_url }}">
+  <input name="options[redirectError]" type="hidden" value="{{ 'comment-error' | absolute_url }}">
+  <input name="options[slug]" type="hidden" value="{{ page.slug }}" />
+  <input name="fields[parent_id]" type="hidden" value="{{ include.parent_id }}" />
+
+  <input id="honeypot" name="fields[honeypot]" type="text" /> 
+
+<input
+      class="comment-name"
+      name="fields[name]"
+      type="text"
+      placeholder="Name"
+      required
+    />
+
+{% if page.layout == 'journal' %}
+
+{% elsif page.title == 'contact' %}
+   <input
+      class="comment-name"
+      name="fields[email]"
+      type="text"
+      placeholder="Email"
+      required
+    />
+{% else %}
+
+   <input
+      class="comment-name"
+      name="fields[email]"
+      type="text"
+      placeholder="Email(optional)"
+    />
+
+{% endif %}
+
+  <textarea
+    id="message-{{ include.parent_id }}"
+    class="comment-message"
+    name="fields[message]"
+    placeholder="Comment (markdown accepted)"
+    required
+  ></textarea>
+    
+  <button class="comment-submit" >
+    SEND
+  </button>
+</form>
+
+<script>
+  var simplemde = new SimpleMDE({
+    element: document.getElementById("message-{{ include.parent_id }}"),
+    forceSync: true,
+    spellChecker: false,
+    status: false,
+    placeholder: "Comment (markdown supported)",
+  });
+</script>
