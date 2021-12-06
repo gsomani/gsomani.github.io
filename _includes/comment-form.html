@@ -2,7 +2,7 @@
   {% if page.layout == 'journal'}
   <input name="options[redirect]" type="hidden" value="{{ 'journal' }}">
   {% else %}
-  <input name="options[redirect]" type="hidden" value="{{ 'co' | absolute_url }}">
+  <input name="options[redirect]" type="hidden" value="{{ 'comment-success' | absolute_url }}">
   {% endif %}
   <input name="options[redirectError]" type="hidden" value="{{ 'comment-error' | absolute_url }}">
   <input name="options[slug]" type="hidden" value="{{ page.slug }}" />
