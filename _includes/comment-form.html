@@ -1,5 +1,9 @@
 <form method="POST" action="{{ site.staticman_url }}" class="comment-form">
-  <input name="options[redirect]" type="hidden" value="{{ 'comment-success' | absolute_url }}">
+  {% if page.layout == 'journal'}
+  <input name="options[redirect]" type="hidden" value="{{ 'journal' }}">
+  {% else %}
+  <input name="options[redirect]" type="hidden" value="{{ 'co' | absolute_url }}">
+  {% endif %}
   <input name="options[redirectError]" type="hidden" value="{{ 'comment-error' | absolute_url }}">
   <input name="options[slug]" type="hidden" value="{{ page.slug }}" />
   <input name="fields[parent_id]" type="hidden" value="{{ include.parent_id }}" />
@@ -20,7 +24,7 @@
    <input
       class="comment-name"
       name="fields[email]"
-      type="text"
+      type="email"
       placeholder="Email"
       required
     />
@@ -29,7 +33,7 @@
    <input
       class="comment-name"
       name="fields[email]"
-      type="text"
+      type="email"
       placeholder="Email(optional)"
     />
 
