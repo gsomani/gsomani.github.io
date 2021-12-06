@@ -1,0 +1,6 @@
+_id: ddc6ea20-5661-11ec-8133-35c9aaffb965
+parent_id: ''
+honeypot: ''
+name: Python code to plot disparity vs count ( for 10 bit numbers)
+message: "```\r\nimport numpy as np\r\nimport matplotlib.pyplot as plt\r\ndef disparity(num):\r\n  ones = 0\r\n  while(num):\r\n    ones += num & 1\r\n    num = num >> 1\r\n  return abs(2*ones - 10)\r\n\r\ntotal = [*range(1<<10)]\r\nd = []\r\ncount = np.zeros(11)\r\n\r\nfor t in total:\r\n  d.append(disparity(t))\r\n  count[disparity(t)]+=1\r\n\r\nplt.plot([*range(11)],count)\r\nplt.show() \r\n```"
+date: 1638773887
