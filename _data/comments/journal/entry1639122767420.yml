@@ -1,0 +1,8 @@
+_id: 2a634660-598e-11ec-b1c6-51e885510c67
+parent_id: ''
+honeypot: ''
+name: Idea
+message: >-
+  Implement HDMI on fpga and try to display video. Try to do DSP on fpga.
+  Moreover, do image procesing.
+date: 1639122767
