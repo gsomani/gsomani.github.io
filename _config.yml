@@ -1,4 +1,4 @@
-﻿# Welcome to Jekyll!
+# Welcome to Jekyll!
 #
 # This config file is meant for settings that affect your whole blog, values
 # which you are expected to set up once and rarely edit after that. If you find
@@ -8,7 +8,7 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # 'bundle exec jekyll serve'. If you change this file, please restart the server process.
 #
-# If you need help with YAML syntax, here are some quick references for you: 
+# If you need help with YAML syntax, here are some quick references for you:
 # https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
 # https://learnxinyminutes.com/docs/yaml/
 #
@@ -21,7 +21,7 @@
 title: अइउण्
 email: gsomani@protonmail.com
 author: Gaurav Somani
-description: "" 
+description: ""
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://gsomani.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
@@ -32,13 +32,16 @@ show_excerpts: true # set to true to show excerpts on the homepage
 linkedin_username: gaurav-somani-a15482124
 github_username:  gsomani
 
-staticman_url: "https://gsomani-staticman.herokuapp.com/v3/entry/github/gsomani/gsomani.github.io/main/comments"
+#issues_url: "https://api.github.com/repos/gsomani/blog-comments/issues"
+token: "11ABRGYNY0tu0w4tsVKjQU_wlrJFgIHLHr6t0RXzVaKXmox8clcYvQEFGI0MgB4Qu9JK7MDEXDixyMqgbB"
+owner: gsomani
+blog_repo: blog-comments
 
 # Build settings
 theme: minima
 
 jekyll:
-  
+
 
 # Exclude from processing.
 # The following items will not be processed, by default.

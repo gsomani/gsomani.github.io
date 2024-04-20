@@ -1,6 +1,0 @@
-_id: 5c2f3310-585e-11ec-92a0-59ca13b2cadb
-parent_id: ''
-honeypot: ''
-name: write about laugurre polynomials
-message: "* Karatsuba algorithm\r\n* Root finding using derivaties\r\nfor example . to find real roots of 5th degree polynomials, calculate its derivative and its roots \r\nthen the region between them would be monotic on 5th degree polynomial and some thing like binary search can be used there. this can be recursively done to get polynomial roots"
-date: 1638992284

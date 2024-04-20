@@ -1,6 +1,0 @@
-_id: 45212f30-5993-11ec-b1c6-51e885510c67
-parent_id: ''
-honeypot: ''
-name: implement communication protocols on fpga
-message: 'Implement I2C, SPI and UART on fpga'
-date: 1639124959
