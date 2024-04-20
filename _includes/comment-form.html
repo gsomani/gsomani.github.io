@@ -1,14 +1,64 @@
-<form method="POST" action="{{ site.staticman_url }}" class="comment-form">
-  <input name="options[redirect]" type="hidden" value="{{ 'comment-success' | absolute_url }}">
-  <input name="options[redirectError]" type="hidden" value="{{ 'comment-error' | absolute_url }}">
-  <input name="options[slug]" type="hidden" value="{{ page.slug }}" />
-  <input name="fields[parent_id]" type="hidden" value="{{ include.parent_id }}" />
+<script type="module">
+import { Octokit } from "https://esm.sh/@octokit/rest";
+const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
 
-  <input id="honeypot" name="fields[honeypot]" type="text" /> 
+const owner = "{{site.owner}}";
+const repo = "{{site.blog_repo}}";
+const issueNumber = {{page.issue}};
+
+function createIssueComment(name, data) {
+ 
+  const commentJSON = {name: name, data: data};
+
+  octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+    owner,
+    repo,
+    issue_number: issueNumber,
+    body: JSON.stringify(commentJSON)
+  }).then(response => {
+    alert('Comment created successfully!');
+  }).catch(error => {
+    alert('Error creating comment');
+  });
+}
+
+function extractComment(comments)
+{
+  var data = new Array();
+
+  for (const [key, value] of Object.entries(comments))
+  {
+    var cur = JSON.parse(value.body);
+    cur['date'] = value.created_at;
+    data.append(cur);
+  }
+  return data;
+}
+
+function readIssueComments() {
+  octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+    owner,
+    repo,
+    issue_number: issueNumber
+  }).then(response => {
+    console.log('Comments:', extractComment(response.data));
+  }).catch(error => {
+    console.error('Error fetching comments:', error);
+  });
+}
+
+window.createIssueComment = createIssueComment;
+window.readIssueComments = readIssueComments;
+
+</script>
+
+
+<form id="commentForm" action="" class="comment-form">
+  <input id="honeypot" name="honeypot" type="text" /> 
 
 <input
       class="comment-name"
-      name="fields[name]"
+      name="name"
       type="text"
       placeholder="Name"
       required
@@ -19,7 +69,7 @@
 {% elsif page.title == 'contact' %}
    <input
       class="comment-name"
-      name="fields[email]"
+      name="email"
       type="email"
       placeholder="Email"
       required
@@ -28,7 +78,7 @@
 
    <input
       class="comment-name"
-      name="fields[email]"
+      name="email"
       type="email"
       placeholder="Email(optional)"
     />
@@ -36,9 +86,9 @@
 {% endif %}
 
   <textarea
-    id="message-{{ include.parent_id }}"
     class="comment-message"
-    name="fields[message]"
+    name="message"
+    id="comment-message"
     placeholder="Comment (markdown accepted)"
     required
   ></textarea>
@@ -50,10 +100,29 @@
 
 <script>
   var simplemde = new SimpleMDE({
-    element: document.getElementById("message-{{ include.parent_id }}"),
+    element: document.getElementById("comment-message"),
     forceSync: true,
     spellChecker: false,
     status: false,
     placeholder: "Comment (markdown supported)",
   });
+
+
+  let commentForm = document.getElementById("commentForm");
+console.log(commentForm);
+
+commentForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+        var form = e.target;
+        var formData = new FormData(form);
+
+        var honeypot = formData.get('honeypot');
+        if (honeypot)
+          return;
+
+        createIssueComment(formData.get('name'), formData.get('message'));
+        readIssueComments();
+});
+
 </script>
