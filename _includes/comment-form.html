@@ -24,6 +24,7 @@ function createIssueComment(data) {
     alert('Message sent!');
 {% else %}
     alert('Comment added successfully!');
+    readIssueComments();
 {% endif %}
 
   }).catch(error => {
@@ -77,7 +78,7 @@ window.createIssueComment = createIssueComment;
   ></textarea>
     
   <button class="comment-submit" >
-    SEND
+    SUBMIT
   </button>
 </form>
 
