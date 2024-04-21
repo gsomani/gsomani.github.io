@@ -16,17 +16,17 @@ I encourage you to try the puzzle on your own. The hints can be revealed sequent
 
 <details>
     <summary> Hint 1 (Board configuration) </summary>
-The configuration of board can be represented by a 64 bit number where each bit represents coin orientation (heads being 0 and tails being 1) ||
+>! The configuration of board can be represented by a 64 bit number where each bit represents coin orientation (heads being 0 and tails being 1) ||
 </details>
 
 <details>
     <summary> Hint 2 (Key location) </summary>
-The location of the key can be encoded as a 6 bit number ranging from (0_{10} to 63_{10}).
+>! The location of the key can be encoded as a 6 bit number ranging from (0_{10} to 63_{10}).
 </details>
 
 <details>
     <summary> Hint 3 (Reachable configurations) </summary>
-Since warden can leave the board in any of the states, each of the configuration reachable (by atmost 1 bit flip) from the current configuration should cover at least one configuration corresponding to each of the key locations.
+>! Since warden can leave the board in any of the states, each of the configuration reachable (by atmost 1 bit flip) from the current configuration should cover at least one configuration corresponding to each of the key locations.
 </details>
 
 <!---
@@ -35,7 +35,7 @@ Since there are 65 configurations reachable from current configuration (includin
 
 <details>
     <summary> Hint 4 (Encoding key location) </summary>
-Since the second prisoner only sees the final 64 bit configuration, each 64 bit configuration of the board corresponds to a single 6 bit key location. The 64 bit number is like encoding of 6 bit number. Any change in input 6 bit number should require atmost 1 bit flip in encoded data. This property is almost opposite of what we want in good error correcting codes. Since the key can be anywhere(from position 0 to 63) for any configuration, a bit flip anywhere on the board might be required. Hence, at least 6 bits are required to represent a bit flip.
+>! Since the second prisoner only sees the final 64 bit configuration, each 64 bit configuration of the board corresponds to a single 6 bit key location. The 64 bit number is like encoding of 6 bit number. Any change in input 6 bit number should require atmost 1 bit flip in encoded data. This property is almost opposite of what we want in good error correcting codes. Since the key can be anywhere(from position 0 to 63) for any configuration, a bit flip anywhere on the board might be required. Hence, at least 6 bits are required to represent a bit flip.
 
 </details>
 **Solution**
