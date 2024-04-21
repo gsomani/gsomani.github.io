@@ -19,7 +19,13 @@ function createIssueComment(data) {
     issue_number: issueNumber,
     body: JSON.stringify(msg)
   }).then(response => {
+
+{% if page.title == 'Contact' %}
+    alert('Message sent!');
+{% else %}
     alert('Comment added successfully!');
+
+
   }).catch(error => {
     alert('Error adding comment');
   });
@@ -43,7 +49,7 @@ window.createIssueComment = createIssueComment;
 
 {% if page.layout == 'journal' %}
 
-{% elsif page.title == 'contact' %}
+{% elsif page.title == 'Contact' %}
    <input
       class="comment-name"
       name="email"
