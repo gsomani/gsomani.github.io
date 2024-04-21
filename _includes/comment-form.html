@@ -24,7 +24,7 @@ function createIssueComment(data) {
     alert('Message sent!');
 {% else %}
     alert('Comment added successfully!');
-
+{% endif %}
 
   }).catch(error => {
     alert('Error adding comment');
