@@ -3,7 +3,7 @@ layout: post
 date: 2024-04-19
 title: The Almost impossible chessboard puzzle
 author: Gaurav Somani
-issue: 1
+issue: 2
 ---
 
 There is a 8x8 chess board covered with a coin placed in each of its squares. Each of the coin is either heads or tails up. The key of a jail room is kept under one of the squares of chessboard. The warden proposes to free the two prisoners if they can solve the following puzzle.
