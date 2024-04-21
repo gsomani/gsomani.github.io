@@ -21,6 +21,11 @@ function extractComment(comments)
 
 function createCommentDiv(data)
 {
+    var commentsDiv = document.getElementById("issue-comments");
+
+    if (document.getElementById(data.id))
+      return;
+
     var commentDiv = document.createElement("div");
     commentDiv.classList.add("comment");
 
@@ -45,13 +50,10 @@ function createCommentDiv(data)
     commentDiv.appendChild(dateElement);
     commentDiv.appendChild(commentParagraph);
 
-    var commentsDiv = document.getElementById("issue-comments");
-
     commentsDiv.appendChild(commentDiv);
 }
 
 function readIssueComments() {
-  var comments;
   octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
     owner,
     repo,
@@ -62,6 +64,7 @@ function readIssueComments() {
   });
 }
 
+window.readIssueComments = readIssueComments;
 window.addEventListener('DOMContentLoaded', readIssueComments, false);
 
 </script>
