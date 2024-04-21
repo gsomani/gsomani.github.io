@@ -30,7 +30,7 @@ function extractComment(comments)
   {
     var cur = JSON.parse(value.body);
     cur['date'] = value.created_at;
-    data.append(cur);
+    data.push(cur);
   }
   return data;
 }
