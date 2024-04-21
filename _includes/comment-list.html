@@ -8,16 +8,46 @@ const issueNumber = {{page.issue}};
 
 function extractComment(comments)
 {
-  var data = new Array();
 
   for (const [key, value] of Object.entries(comments))
   {
     var cur = JSON.parse(value.body);
     cur['date'] = value.created_at;
-    data.push(cur);
-    console.log(value);
+    cur['id'] = value.id;
+    createCommentDiv(cur);
   }
-  return data;
+
+}
+
+function createCommentDiv(data)
+{
+    var commentDiv = document.createElement("div");
+    commentDiv.classList.add("comment");
+
+    commentDiv.setAttribute("id", data.id);
+    var nameHeader = document.createElement("h3");
+    nameHeader.textContent = data.name + " ";
+
+    var dateElement = document.createElement("time");
+    dateElement.classList.add("post-meta", "dt-published");
+    dateElement.setAttribute("datetime", "{{ page.date | date_to_xmlschema }}");
+    dateElement.setAttribute("itemprop", "datePublished");
+    var date = new Date(data.date);
+    var dateFormat = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " - " + date.toLocaleDateString();
+    dateElement.textContent = dateFormat;
+
+    var commentParagraph = document.createElement("p");
+    var content = data.message;
+    var strippedContent = content.replace(/<[^>]*>/g, ''); // Strip HTML tags
+    commentParagraph.textContent = strippedContent;
+
+    commentDiv.appendChild(nameHeader);
+    commentDiv.appendChild(dateElement);
+    commentDiv.appendChild(commentParagraph);
+
+    var commentsDiv = document.getElementById("issue-comments");
+
+    commentsDiv.appendChild(commentDiv);
 }
 
 function readIssueComments() {
@@ -26,35 +56,12 @@ function readIssueComments() {
     owner,
     repo,
     issue_number: issueNumber
-  }).then(response => {comments = extractComment(response.data));})
+  }).then(response => {extractComment(response.data);})
   .catch(error => {
     console.error('Error fetching comments:', error);
   });
-  console.log(comments);
 }
 
-window.readIssueComments = readIssueComments;
+window.addEventListener('DOMContentLoaded', readIssueComments, false);
 
 </script>
-
-<body onload=readIssueComments()></body>
-<!----
-<div class="comment">
-  <h3>{{comment.name}}</h3>
-  {% if page.layout == 'message_read' %}
-  <h3>({{comment.email}})</h3>
-  {% endif %}
-  <time
-    class="post-meta dt-published"
-    datetime="{{ page.date | date_to_xmlschema }}"
-    itemprop="datePublished"
-  >
-    {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-    {{ comment.date | date:"%H:%M - %b %-d, %Y" }}
-  </time>
-  <p>{{comment.message | strip_html | markdownify }}</p>
-  {% endif %}
-</div>
-{% endfor %}
-
----!>

@@ -6,19 +6,22 @@ const owner = "{{site.owner}}";
 const repo = "{{site.blog_repo}}";
 const issueNumber = {{page.issue}};
 
-function createIssueComment(name, data) {
- 
-  const commentJSON = {name: name, data: data};
+function createIssueComment(data) {
+
+ var msg = {};
+
+ for (const [key, value] of data.entries())
+  msg[key] = value;
 
   octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
     owner,
     repo,
     issue_number: issueNumber,
-    body: JSON.stringify(commentJSON)
+    body: JSON.stringify(msg)
   }).then(response => {
-    alert('Comment created successfully!');
+    alert('Comment added successfully!');
   }).catch(error => {
-    alert('Error creating comment');
+    alert('Error adding comment');
   });
 }
 
@@ -94,7 +97,8 @@ commentForm.addEventListener("submit", (e) => {
         if (honeypot)
           return;
 
-        createIssueComment(formData.get('name'), formData.get('message'));
+        formData.delete("honeypot"); 
+        createIssueComment(formData);
 });
 
 </script>
