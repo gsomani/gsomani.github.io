@@ -1,0 +1,12 @@
+<script>
+  let upvotes = 0;
+
+  function upvote() {
+      upvotes += 1;
+      if (upvotes == 1)
+        updateIssue(upvotes);
+  }
+
+</script>
+
+<button onclick="upvote()">👍</button>
