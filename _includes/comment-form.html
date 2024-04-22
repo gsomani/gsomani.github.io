@@ -32,7 +32,23 @@ function createIssueComment(data) {
   });
 }
 
+function updateIssue(data) {
+
+  octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+    owner,
+    repo,
+    issue_number: issueNumber,
+    body: JSON.stringify(data)
+  }).then(response => {
+    readIssueDescription();
+  }).catch(error => {
+    alert('Error updating issue');
+  });
+}
+
+
 window.createIssueComment = createIssueComment;
+window.updateIssue = updateIssue;
 
 </script>
 

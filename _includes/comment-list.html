@@ -8,7 +8,6 @@ const issueNumber = {{page.issue}};
 
 function extractComment(comments)
 {
-
   for (const [key, value] of Object.entries(comments))
   {
     var cur = JSON.parse(value.body);
@@ -16,8 +15,15 @@ function extractComment(comments)
     cur['id'] = value.id;
     createCommentDiv(cur);
   }
-
 }
+
+function extractUpvotes(data)
+{
+   if (data.hasOwnProperty('upvotes'))
+      return data.upvotes;
+   return 0;
+}
+
 
 function createCommentDiv(data)
 {
@@ -35,16 +41,14 @@ function createCommentDiv(data)
 
     var dateElement = document.createElement("time");
     dateElement.classList.add("post-meta", "dt-published");
-    dateElement.setAttribute("datetime", "{{ page.date | date_to_xmlschema }}");
-    dateElement.setAttribute("itemprop", "datePublished");
     var date = new Date(data.date);
-    var dateFormat = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + " - " + date.toLocaleDateString();
+    const options = {month: 'long', day: 'numeric', year:'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'};
+    var dateFormat = date.toLocaleDateString(undefined, options);
     dateElement.textContent = dateFormat;
 
     var commentParagraph = document.createElement("p");
     var content = data.message;
-    var strippedContent = content.replace(/<[^>]*>/g, ''); // Strip HTML tags
-    commentParagraph.textContent = strippedContent;
+    commentParagraph.textContent = content;
 
     commentDiv.appendChild(nameHeader);
     commentDiv.appendChild(dateElement);
@@ -64,7 +68,19 @@ function readIssueComments() {
   });
 }
 
+function readIssueDescription() {
+  octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}', {
+    owner,
+    repo,
+    issue_number: issueNumber
+  }).then(response => {console.log(response.body);})
+  .catch(error => {
+    console.error('Error fetching issue:', error);
+  });
+}
+
 window.readIssueComments = readIssueComments;
+window.readIssueDescription = readIssueDescription;
 window.addEventListener('DOMContentLoaded', readIssueComments, false);
 
 </script>
