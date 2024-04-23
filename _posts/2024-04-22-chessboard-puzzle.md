@@ -61,4 +61,85 @@ So, we need to just flip the coin on the square xorresponding to $a \oplus b$ to
 
 <br>
 
+<p> Try to guess the key location as the second prisoner give the following chessboard. </p>
+
+<style>
+  .chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, 50px); /* Adjust the size of the squares as needed */
+    grid-template-rows: repeat(8, 50px);
+  }
+  .square {
+    width: 50px;
+    height: 50px;
+    background-color: #f0d9b5; /* Light color for chessboard */
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+  }
+</style>
+
+<div class="chessboard" id="chessboard"></div>
+
+<script>
+  function createChessboard(size) {
+    const chessboard = document.getElementById('chessboard');
+    chessboard.innerHTML = '';
+
+    const squares = 'repeat(' + size + ', 50px)';
+
+    chessboard.style.setProperty('grid-template-columns', squares);
+    chessboard.style.setProperty('grid-template-rows', squares);
+    
+    const coins = [0, 1];
+    var configuration = Array();
+
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        const square = document.createElement('div');
+        square.classList.add('square');
+        chessboard.appendChild(square);
+
+        const randomCoin = coins[Math.floor(Math.random() * coins.length)];
+        configuration.push(randomCoin);
+        const coin = document.createElement('div');
+        coin.textContent = randomCoin;
+        square.appendChild(coin);
+      }
+    }
+    return configuration;
+  }
+
+  function configToKey(config){
+    var sum = 0;
+    for (i in config)
+      sum ^= (config[i]*i);
+    return sum;
+  }
+
+  config = createChessboard(8);
+  
+  function check(){
+    
+    key = configToKey(config);
+    guess = document.getElementById("keyLoc");
+    const success = (key == guess.value);
+
+    if (success)
+      alert("Successfull key guess");
+    else
+      alert("Wrong! Try again");
+  }
+  
+
+</script>
+<br/>
+<input id="keyLoc" text="Enter decoded key location from above board" type="number"/> <br/>
+
+<button onclick="check()" style="cursor:pointer"> Verify key location </button>
+
+<br/>
+
 The solution mentioned is the one presented in the [video](https://www.youtube.com/watch?v=wTJI_WuZSwE). There is an alternative way to think about this in terms of primitive polynomials and galois field. Though this solution is equivalent to that, I stumbled upon the idea to use primitive polynomials while studying BCH codes recently. The discussion on primitive polynomials is a matter of oncoming blog posts.
