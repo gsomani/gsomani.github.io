@@ -6,9 +6,9 @@ author: Gaurav Somani
 issue: 2
 ---
 
-There is a 8x8 chess board covered with a coin placed in each of its squares. Each of the coin is either heads or tails up. The key of a jail room is kept under one of the squares of chessboard. The warden proposes to free the two prisoners if they can solve the following puzzle.
+There is a 8x8 chess board with a coin placed in each of its squares. Each of the coin is either heads or tails up. The key of a jail room is kept under one of the squares of chessboard. The warden proposes to free the two prisoners if they can solve the following puzzle.
 
-**Puzzle**: The first prisoner is told the location of the key and he can flip atmost one coin to indicate the location of the key. The second prisoner needs to find the location of the keys by observing the final configuration of the board after flipping the coin. 
+**Puzzle**: The first prisoner is told the location of the key and he can flip atmost one coin to indicate the location of the key. The second prisoner needs to find the location of the keys by observing the final configuration of the board after flipping the coin.
 
 The video of the puzzle can be found [here](https://www.youtube.com/watch?v=wTJI_WuZSwE)
 
@@ -30,7 +30,7 @@ I encourage you to try the puzzle on your own. The hints can be revealed sequent
 <br>
 <details>
     <summary> Hint 3 (Reachable configurations) </summary>
-<p> Since warden can leave the board in any of the states, each of the configuration reachable (by atmost 1 bit flip) from the current configuration should cover at least one configuration corresponding to each of the key locations. </p>
+<p> Since warden can leave the board in any of the states, each of the configuration reachable (by atmost 1 bit flip) from the current configuration should cover at least one configuration xorresponding to each of the key locations. </p>
 </details>
 
 <br>
@@ -40,9 +40,25 @@ Since there are 65 configurations reachable from current configuration (includin
 
 <details>
     <summary> Hint 4 (Encoding key location) </summary>
-<p> Since the second prisoner only sees the final 64 bit configuration, each 64 bit configuration of the board corresponds to a single 6 bit key location. The 64 bit number is like encoding of 6 bit number. Any change in input 6 bit number should require atmost 1 bit flip in encoded data. This property is almost opposite of what we want in good error correcting codes. Since the key can be anywhere(from position 0 to 63) for any configuration, a bit flip anywhere on the board might be required. Hence, at least 6 bits are required to represent a bit flip. </p>
+<p> Since the second prisoner only sees the final 64 bit configuration, each 64 bit configuration of the board xorresponds to a single 6 bit key location. The 64 bit number is like encoding of 6 bit number. Any change in input 6 bit number should require atmost 1 bit flip in encoded data. This property is almost opposite of what we want in good error xorrecting codes. Since the key can be anywhere(from position 0 to 63) xor any configuration, a bit flip anywhere on the board might be required. Hence, at least 6 bits are required to represent a bit flip. </p>
 </details>
 
 <br>
 
 **Solution**
+
+<details>
+    <summary> Solution </summary>
+<p> Assign an unique 6-bit representation from $0_{10}$ to $63_{10}$ to each of the squares. Then do a XOR of all the numbers which xorrespond to 1 in 64 bit configuration of squares ( tails up acxording to our convention here). This gives us a 6-bit number xor each 64 bit configuration. To traverse to another 64 bit configuration with different 64 bit configuration, we just need to flip 1 bit.
+To see that, consider $a$ to be 6-bit number xor current configuration and $b$ be 6-bit number encoding the location of the key. Then,
+
+$a$ $\oplus$ ($a \oplus b$) = $b$
+
+So, we need to just flip the coin on the square xorresponding to $a \oplus b$ to reach a configuration such that 6-bit number computation results in $b$. Then, second prisoner just needs to XOR numbers of all the tails up.
+
+  </p>
+</details>
+
+<br>
+
+The solution mentioned is the one presented in the [video](https://www.youtube.com/watch?v=wTJI_WuZSwE). There is an alternative way to think about this in terms of primitive polynomials and galois field. Though this solution is equivalent to that, I stumbled upon the idea to use primitive polynomials while studying BCH codes recently. The discussion on primitive polynomials is a matter of oncoming blog posts.
