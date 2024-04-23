@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
 <script type="module">
 import { Octokit } from "https://esm.sh/@octokit/rest";
 const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
@@ -24,6 +25,11 @@ function extractUpvotes(data)
    return 0;
 }
 
+function convertMarkdownToHtml(content) {
+  var converter = new showdown.Converter();
+  return converter.makeHtml(content);
+}
+
 
 function createCommentDiv(data)
 {
@@ -47,8 +53,7 @@ function createCommentDiv(data)
     dateElement.textContent = dateFormat;
 
     var commentParagraph = document.createElement("p");
-    var content = data.message;
-    commentParagraph.textContent = content;
+    commentParagraph.innerHTML = convertMarkdownToHtml(data.message);
 
     commentDiv.appendChild(nameHeader);
     commentDiv.appendChild(dateElement);

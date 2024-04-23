@@ -1,6 +1,6 @@
 ---
 layout: post
-date: 2024-04-19
+date: 2024-04-22
 title: The Almost impossible chessboard puzzle
 author: Gaurav Somani
 issue: 2
