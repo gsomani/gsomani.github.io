@@ -35,6 +35,14 @@ function createCommentDiv(data)
 {
     var commentsDiv = document.getElementById("issue-comments");
 
+    const reqFields = ["name", "date", "message", "id"];
+
+    for (var v of reqFields)
+     if (data.hasOwnProperty(v))
+        continue;
+      else
+        return;
+
     if (document.getElementById(data.id))
       return;
 
@@ -78,7 +86,7 @@ function readIssueDescription() {
     owner,
     repo,
     issue_number: issueNumber
-  }).then(response => {console.log(response.body);})
+  }).then(response => { let e = extractUpvotes(response.data.body); console.log(e);})
   .catch(error => {
     console.error('Error fetching issue:', error);
   });
