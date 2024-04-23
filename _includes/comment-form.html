@@ -4,9 +4,8 @@ const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
 
 const owner = "{{site.owner}}";
 const repo = "{{site.blog_repo}}";
-const issueNumber = {{page.issue}};
 
-function createIssueComment(data) {
+function createIssueComment(data, issue_number) {
 
  var msg = {};
 
@@ -16,7 +15,7 @@ function createIssueComment(data) {
   octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
     owner,
     repo,
-    issue_number: issueNumber,
+    issue_number: issue_number,
     body: JSON.stringify(msg)
   }).then(response => {
 
@@ -24,7 +23,7 @@ function createIssueComment(data) {
     alert('Message sent!');
 {% else %}
     alert('Comment added successfully!');
-    readIssueComments();
+    readComments(issue_number);
 {% endif %}
 
   }).catch(error => {
@@ -32,12 +31,11 @@ function createIssueComment(data) {
   });
 }
 
-function updateIssue(data) {
-
+function updateIssue(data, issue_number) {
   octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}', {
     owner,
     repo,
-    issue_number: issueNumber,
+    issue_number: issue_number,
     body: JSON.stringify(data)
   }).then(response => { console.log("Issue updated successfully");})
   .catch(error => {
@@ -109,6 +107,8 @@ window.updateIssue = updateIssue;
 
 let commentForm = document.getElementById("commentForm");
 
+const issue_number = {{page.issue}};
+
 commentForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -120,7 +120,7 @@ commentForm.addEventListener("submit", (e) => {
           return;
 
         formData.delete("honeypot"); 
-        createIssueComment(formData);
+        createIssueComment(formData, issue_number);
 });
 
 </script>

@@ -1,12 +1,14 @@
 <script>
-  let upvotes = 0;
-
-  function upvote() {
-      upvotes += 1;
-      if (upvotes == 1)
-        updateIssue(upvotes);
+  function upvote(issue) {
+      const key = `upvote_gsomani_${issue}`;
+      upvoted = localStorage.getItem(key);
+      if (!upvoted){
+        upvoted = true;
+        localStorage.setItem(key, upvoted);
+        readUpvotes(issue, update=true);
+      }
   }
 
 </script>
 
-<button onclick="upvote()">👍</button>
+<button id="upvote-button" onclick="upvote({{page.issue}})" style= "cursor:pointer" >👍</button>

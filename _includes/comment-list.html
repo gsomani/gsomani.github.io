@@ -5,7 +5,7 @@ const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
 
 const owner = "{{site.owner}}";
 const repo = "{{site.blog_repo}}";
-const issueNumber = {{page.issue}};
+const issue_number = {{page.issue}};
 
 function extractComment(comments)
 {
@@ -18,10 +18,12 @@ function extractComment(comments)
   }
 }
 
-function extractUpvotes(data)
+function extractUpvotes(data, issue_number)
 {
-   if (data.hasOwnProperty('upvotes'))
-      return data.upvotes;
+   const jsonData = JSON.parse(data);
+   if (jsonData.hasOwnProperty('upvotes'))
+      return jsonData.upvotes;
+   updateIssue({upvotes: 0}, issue_number);
    return 0;
 }
 
@@ -70,30 +72,45 @@ function createCommentDiv(data)
     commentsDiv.appendChild(commentDiv);
 }
 
-function readIssueComments() {
+function readComments(issue_number) {
   octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
     owner,
     repo,
-    issue_number: issueNumber
+    issue_number: issue_number
   }).then(response => {extractComment(response.data);})
   .catch(error => {
     console.error('Error fetching comments:', error);
   });
 }
 
-function readIssueDescription() {
+function readUpvotes(issue_number, update=false) {
   octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}', {
     owner,
     repo,
-    issue_number: issueNumber
-  }).then(response => { let e = extractUpvotes(response.data.body); console.log(e);})
+    issue_number: issue_number
+  }).then(response => { var upvotes = extractUpvotes(response.data.body, issue_number);
+
+  var button = document.getElementById("upvote-button");
+
+  button.innerText = "👍";
+
+  if (update)
+  {
+    upvotes += 1;
+    updateIssue({upvotes: upvotes}, issue_number);
+  }
+
+  if (upvotes > 0)
+    button.innerText += upvotes;
+
+})
   .catch(error => {
     console.error('Error fetching issue:', error);
   });
 }
 
-window.readIssueComments = readIssueComments;
-window.readIssueDescription = readIssueDescription;
-window.addEventListener('DOMContentLoaded', readIssueComments, false);
+window.readComments = readComments;
+window.readUpvotes = readUpvotes;
+window.addEventListener('DOMContentLoaded', function() { readComments(issue_number); readUpvotes(issue_number);}, false);
 
 </script>
