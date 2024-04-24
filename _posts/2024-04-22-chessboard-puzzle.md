@@ -6,7 +6,7 @@ author: Gaurav Somani
 issue: 2
 ---
 
-There is a 8x8 chess board with a coin placed in each of its squares. Each of the coin is either heads or tails up. The key of a jail room is kept under one of the squares of chessboard. The warden proposes to free the two prisoners if they can solve the following puzzle.
+There is a 8x8 chess board with a coin placed in each of its squares. Each of the coins is either heads or tails up. The key of a jail room is kept under one of the squares of a chessboard. The warden proposes to free the two prisoners if they can solve the following puzzle.
 
 **Puzzle**: The first prisoner is told the location of the key and he can flip atmost one coin to indicate the location of the key. The second prisoner needs to find the location of the keys by observing the final configuration of the board after flipping the coin.
 
@@ -54,7 +54,7 @@ To see that, consider $a$ to be 6-bit number xor current configuration and $b$ b
 
 $a$ $\oplus$ ($a \oplus b$) = $b$
 
-So, we need to just flip the coin on the square xorresponding to $a \oplus b$ to reach a configuration such that 6-bit number computation results in $b$. Then, second prisoner just needs to XOR numbers of all the tails up.
+So, we need to just flip the coin on the square corresponding to $a \oplus b$ to reach a configuration such that 6-bit number computation results in $b$. Then, second prisoner just needs to XOR numbers of all the tails up.
 
   </p>
 </details>
