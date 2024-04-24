@@ -61,40 +61,50 @@ So, we need to just flip the coin on the square corresponding to $a \oplus b$ to
 
 <br>
 
-<p> Try to guess the key location as the second prisoner give the following chessboard. </p>
+<p> Try to guess the key location as the second prisoner give the following chessboard. <span style="color:red"> Heads is represented by red. </span> and <span style="color:blue"> Tails is represented by blue. </span> Click on the square to find out whether the key is under that. The key location is determined by above solution strategy. 
+</p>
 
 <style>
   .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 50px); /* Adjust the size of the squares as needed */
-    grid-template-rows: repeat(8, 50px);
+    grid-template-columns: repeat(8, 70px);
+    grid-template-rows: repeat(8, 70px);
   }
   .square {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     background-color: #f0d9b5; /* Light color for chessboard */
     border: 1px solid black;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
+    cursor: pointer;
   }
 </style>
 
 <div class="chessboard" id="chessboard"></div>
 
 <script>
+  const size = 8;
+
+  function paddedBinary(num, size)
+  { return num.toString(2).padStart(size, '0');}
+
   function createChessboard(size) {
     const chessboard = document.getElementById('chessboard');
     chessboard.innerHTML = '';
 
-    const squares = 'repeat(' + size + ', 50px)';
+    const squares = 'repeat(' + size + ', 70px)';
 
     chessboard.style.setProperty('grid-template-columns', squares);
     chessboard.style.setProperty('grid-template-rows', squares);
-    
+
     const coins = [0, 1];
     var configuration = Array();
+    const numBits = Math.ceil(2*Math.log2(size));
+    
+    const colors = ['red', 'blue'];
 
     for (let row = 0; row < size; row++) {
       for (let col = 0; col < size; col++) {
@@ -103,14 +113,22 @@ So, we need to just flip the coin on the square corresponding to $a \oplus b$ to
         chessboard.appendChild(square);
 
         const randomCoin = coins[Math.floor(Math.random() * coins.length)];
+        square.innerHTML  = `${paddedBinary(configuration.length, numBits)}`;
+        square.style.color = colors[randomCoin]; 
+        
+        square.setAttribute('id', configuration.length);
         configuration.push(randomCoin);
-        const coin = document.createElement('div');
-        coin.textContent = randomCoin;
-        square.appendChild(coin);
+        
+        square.addEventListener('click', handleClick);
       }
     }
     return configuration;
   }
+
+   function handleClick(event) {
+      const id = event.target.id;
+      check(id); 
+    }
 
   function configToKey(config){
     var sum = 0;
@@ -119,29 +137,24 @@ So, we need to just flip the coin on the square corresponding to $a \oplus b$ to
     return sum;
   }
 
-  config = createChessboard(8);
-  
-  function check(){
-    
-    key = configToKey(config);
-    guess = document.getElementById("keyLoc");
-    const success = (key == guess.value);
+  const config = createChessboard(size);
+  const key = configToKey(config);
+
+  function check(guess){
+    const success = (key == guess);
 
     if (success)
       alert("Successfull key guess");
     else
       alert("Wrong! Try again");
   }
-  
+
 
 </script>
 <br/>
-<input id="keyLoc" text="Enter decoded key location from above board" type="number"/> <br/>
-
-<button onclick="check()" style="cursor:pointer"> Verify key location </button>
 
 <br/>
 
-The solution mentioned is the one presented in the [video](https://www.youtube.com/watch?v=wTJI_WuZSwE). I would also like to mention that prisoners can decide to label squares with 6-bit numbers in any permutation leading to possible 64! solutions to this puzzle. But some permutations have more symmetry and require less effort to remember and actually do computations in real time. 
+The solution mentioned is the one presented in the [video](https://www.youtube.com/watch?v=wTJI_WuZSwE). I would also like to mention that prisoners can decide to label squares with 6-bit numbers in any permutation leading to possible 64! solutions to this puzzle. But some permutations have more symmetry and require less effort to remember and actually do computations in real time.
 
 There is an alternative solution to this in terms of primitive polynomials which I discovered while studying BCH codes. The primitive polynomials are important in understanding algebraic error correcting codes including BCH and also solve this puzzle.
