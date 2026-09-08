@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Projects
-permalink: /projects
+permalink: /projects/
 ---
 
 My coding projects are available on my  <a href="https://github.com/gsomani">GitHub profile</a>. 

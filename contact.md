@@ -2,7 +2,7 @@
 layout: page
 slug: message
 title: Contact
-permalink: /contact
+permalink: /contact/
 issue: 3
 ---
 
