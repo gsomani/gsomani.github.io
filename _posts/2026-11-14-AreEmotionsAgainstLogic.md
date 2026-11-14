@@ -70,10 +70,12 @@ $$
 
 which prefers small weights. That preference is itself a bet about the world: outputs usually depend smoothly on inputs, and huge weights often come from fragile cancellations between nearly collinear features rather than from real effects. With the SVD $$X = U \Sigma V^\top$$, least squares gives each component as $$w_i = u_i^\top y / \sigma_i$$, so noise along directions with tiny $$\sigma_i$$ is amplified enormously. Ridge tames exactly those directions.
 
+<!--
 Two exercises I'm still working through by hand:
 
 1. Show that ridge regression is the MAP estimate of $$w$$ under Gaussian noise and a Gaussian prior on $$w$$, and find $$\lambda$$ in terms of the two variances.
 2. Find what replaces $$1/\sigma_i$$ in the ridge solution $$w = (X^\top X + \lambda I)^{-1} X^\top y$$, and check its behavior when $$\sigma_i^2 \gg \lambda$$ and when $$\sigma_i^2 \ll \lambda$$.
+-->
 
 ## Back to the question
 
