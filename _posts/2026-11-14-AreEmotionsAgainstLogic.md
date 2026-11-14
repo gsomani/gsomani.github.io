@@ -4,6 +4,7 @@ title: "Are emotions against logic?"
 date: 2026-11-14
 tags: [decision-making, reinforcement-learning, bayesian, statistics]
 math: true
+issue: 5
 ---
 
 It's common to say that emotions work against logic. The picture I ended up with is more interesting: emotions and reasoning are two parts of one decision system, and the conflicts between them come from a mismatch of tuning, not a war of principles.

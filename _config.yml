@@ -10,9 +10,8 @@ show_excerpts: true # set to true to show excerpts on the homepage
 linkedin_username: gaurav-somani-a15482124
 github_username:  gsomani
 
-token: "11ABRGYNY0tu0w4tsVKjQU_wlrJFgIHLHr6t0RXzVaKXmox8clcYvQEFGI0MgB4Qu9JK7MDEXDixyMqgbB"
-owner: gsomani
-blog_repo: blog-comments
+# Base URL of the CommentServer backend (see CommentServer/README.md)
+commentApi: "https://gsomani.duckdns.org"
 
 # Build settings
 theme: minima

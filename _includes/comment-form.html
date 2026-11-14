@@ -1,52 +1,27 @@
-<script type="module">
-import { Octokit } from "https://esm.sh/@octokit/rest";
-const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
+<script>
+var commentApi = "{{site.commentApi}}";
+var threadId = {{page.issue}};
 
-const owner = "{{site.owner}}";
-const repo = "{{site.blog_repo}}";
+function createComment(data, thread) {
+  const msg = {};
+  for (const [key, value] of data.entries())
+    msg[key] = value;
 
-function createIssueComment(data, issue_number) {
-
- var msg = {};
-
- for (const [key, value] of data.entries())
-  msg[key] = value;
-
-  octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-    owner,
-    repo,
-    issue_number: issue_number,
+  fetch(`${commentApi}/api/comments/${thread}`, {
+    method: "POST",
     body: JSON.stringify(msg)
   }).then(response => {
-
+    if (!response.ok) throw new Error(response.status);
 {% if page.title == 'Contact' %}
     alert('Message sent!');
 {% else %}
     alert('Comment added successfully!');
-    readComments(issue_number);
+    readComments(thread);
 {% endif %}
-
   }).catch(error => {
     alert('Error adding comment');
   });
 }
-
-function updateIssue(data, issue_number) {
-  octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}', {
-    owner,
-    repo,
-    issue_number: issue_number,
-    body: JSON.stringify(data)
-  }).then(response => { console.log("Issue updated successfully");})
-  .catch(error => {
-    console.error('Error updating issue');
-  });
-}
-
-
-window.createIssueComment = createIssueComment;
-window.updateIssue = updateIssue;
-
 </script>
 
 
@@ -107,7 +82,6 @@ window.updateIssue = updateIssue;
 
 let commentForm = document.getElementById("commentForm");
 
-const issue_number = {{page.issue}};
 
 commentForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -120,7 +94,7 @@ commentForm.addEventListener("submit", (e) => {
           return;
 
         formData.delete("honeypot"); 
-        createIssueComment(formData, issue_number);
+        createComment(formData, threadId);
 });
 
 </script>

@@ -1,116 +1,61 @@
 <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
-<script type="module">
-import { Octokit } from "https://esm.sh/@octokit/rest";
-const octokit = new Octokit({ auth: 'github_pat_{{site.token}}'});
-
-const owner = "{{site.owner}}";
-const repo = "{{site.blog_repo}}";
-const issue_number = {{page.issue}};
-
-function extractComment(comments)
-{
-  for (const [key, value] of Object.entries(comments))
-  {
-    var cur = JSON.parse(value.body);
-    cur['date'] = value.created_at;
-    cur['id'] = value.id;
-    createCommentDiv(cur);
-  }
-}
-
-function extractUpvotes(data, issue_number)
-{
-   const jsonData = JSON.parse(data);
-   if (jsonData.hasOwnProperty('upvotes'))
-      return jsonData.upvotes;
-   updateIssue({upvotes: 0}, issue_number);
-   return 0;
-}
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script>
+var commentApi = "{{site.commentApi}}";
+var threadId = {{page.issue}};
 
 function convertMarkdownToHtml(content) {
-  var converter = new showdown.Converter();
-  return converter.makeHtml(content);
+  const converter = new showdown.Converter();
+  return DOMPurify.sanitize(converter.makeHtml(content));
 }
 
+function createCommentDiv(data) {
+  const commentsDiv = document.getElementById("issue-comments");
+  if (document.getElementById("comment-" + data.id))
+    return;
 
-function createCommentDiv(data)
-{
-    var commentsDiv = document.getElementById("issue-comments");
+  const commentDiv = document.createElement("div");
+  commentDiv.classList.add("comment");
+  commentDiv.setAttribute("id", "comment-" + data.id);
 
-    const reqFields = ["name", "date", "message", "id"];
+  const nameHeader = document.createElement("h3");
+  nameHeader.textContent = data.name + " ";
 
-    for (var v of reqFields)
-     if (data.hasOwnProperty(v))
-        continue;
-      else
-        return;
+  const dateElement = document.createElement("time");
+  dateElement.classList.add("post-meta", "dt-published");
+  const options = {month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'};
+  dateElement.textContent = new Date(data.date).toLocaleDateString(undefined, options);
 
-    if (document.getElementById(data.id))
-      return;
+  const commentParagraph = document.createElement("div");
+  commentParagraph.innerHTML = convertMarkdownToHtml(data.message);
 
-    var commentDiv = document.createElement("div");
-    commentDiv.classList.add("comment");
-
-    commentDiv.setAttribute("id", data.id);
-    var nameHeader = document.createElement("h3");
-    nameHeader.textContent = data.name + " ";
-
-    var dateElement = document.createElement("time");
-    dateElement.classList.add("post-meta", "dt-published");
-    var date = new Date(data.date);
-    const options = {month: 'long', day: 'numeric', year:'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'};
-    var dateFormat = date.toLocaleDateString(undefined, options);
-    dateElement.textContent = dateFormat;
-
-    var commentParagraph = document.createElement("p");
-    commentParagraph.innerHTML = convertMarkdownToHtml(data.message);
-
-    commentDiv.appendChild(nameHeader);
-    commentDiv.appendChild(dateElement);
-    commentDiv.appendChild(commentParagraph);
-
-    commentsDiv.appendChild(commentDiv);
+  commentDiv.appendChild(nameHeader);
+  commentDiv.appendChild(dateElement);
+  commentDiv.appendChild(commentParagraph);
+  commentsDiv.appendChild(commentDiv);
 }
 
-function readComments(issue_number) {
-  octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-    owner,
-    repo,
-    issue_number: issue_number
-  }).then(response => {extractComment(response.data);})
-  .catch(error => {
-    console.error('Error fetching comments:', error);
-  });
+function readComments(thread) {
+  fetch(`${commentApi}/api/comments/${thread}`)
+    .then(response => response.json())
+    .then(comments => comments.forEach(createCommentDiv))
+    .catch(error => console.error('Error fetching comments:', error));
 }
 
-function readUpvotes(issue_number, update=false) {
-  octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}', {
-    owner,
-    repo,
-    issue_number: issue_number
-  }).then(response => { var upvotes = extractUpvotes(response.data.body, issue_number);
-
-  var button = document.getElementById("upvote-button");
-
-  button.innerText = "👍";
-
-  if (update)
-  {
-    upvotes += 1;
-    updateIssue({upvotes: upvotes}, issue_number);
-  }
-
-  if (upvotes > 0)
-    button.innerText += upvotes;
-
-})
-  .catch(error => {
-    console.error('Error fetching issue:', error);
-  });
+function showUpvotes(count) {
+  const button = document.getElementById("upvote-button");
+  button.innerText = count > 0 ? "👍" + count : "👍";
 }
 
-window.readComments = readComments;
-window.readUpvotes = readUpvotes;
-window.addEventListener('DOMContentLoaded', function() { readComments(issue_number); readUpvotes(issue_number);}, false);
+function readUpvotes(thread, update = false) {
+  fetch(`${commentApi}/api/upvotes/${thread}`, {method: update ? "POST" : "GET"})
+    .then(response => response.json())
+    .then(data => showUpvotes(data.upvotes))
+    .catch(error => console.error('Error fetching upvotes:', error));
+}
 
+window.addEventListener('DOMContentLoaded', function () {
+  if (document.getElementById("issue-comments")) readComments(threadId);
+  if (document.getElementById("upvote-button")) readUpvotes(threadId);
+});
 </script>

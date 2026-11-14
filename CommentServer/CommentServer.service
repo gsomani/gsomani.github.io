@@ -1,0 +1,16 @@
+[Unit]
+Description=Blog comment server
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/CommentServer
+Environment=COMMENT_DB=/var/lib/commentserver/comments.db
+Environment=COMMENT_ORIGINS=https://gsomani.github.io
+Environment=COMMENT_TRUST_PROXY=1
+ExecStart=/usr/bin/python3 /opt/CommentServer/Server.py
+DynamicUser=yes
+StateDirectory=commentserver
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
