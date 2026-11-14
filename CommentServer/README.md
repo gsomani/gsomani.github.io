@@ -17,3 +17,13 @@ COMMENT_TRUST_PROXY=1 when behind a reverse proxy (uses X-Forwarded-For for rate
 
 ## Read contact messages
     sqlite3 /var/lib/commentserver/comments.db "select createdAt,name,email,message from comments where thread=3"
+
+## Thread ids
+Only ids listed in `COMMENT_THREADS` (service file, default `2,3,5`) are accepted. When you
+add a post with a new `issue:` value, add it there and run `sudo systemctl restart CommentServer`.
+
+## Abuse protection
+- POSTs must come from an allowed `Origin` with `Content-Type: application/json`.
+- Per-IP limit: 5 comments / 10 min (IPv6 grouped by /64, stored as a salted hash so it survives
+  restarts); global cap 60 comments / hour (`COMMENT_GLOBAL_PER_HOUR`).
+- nginx adds request-rate, connection and body-size limits (see `NginxLimits.conf`).

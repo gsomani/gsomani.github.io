@@ -6,6 +6,7 @@ After=network.target
 WorkingDirectory=/opt/CommentServer
 Environment=COMMENT_DB=/var/lib/commentserver/comments.db
 Environment=COMMENT_ORIGINS=https://gsomani.github.io
+Environment=COMMENT_THREADS=2,3,5
 Environment=COMMENT_TRUST_PROXY=1
 ExecStart=/usr/bin/python3 /opt/CommentServer/Server.py
 DynamicUser=yes

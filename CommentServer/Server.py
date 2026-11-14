@@ -8,8 +8,11 @@ Endpoints (JSON):
   POST /api/upvotes/<thread>    -> {upvotes}
 The contact thread's messages are never returned by GET; read them in the DB.
 """
+import hashlib
+import ipaddress
 import json
 import os
+import secrets
 import re
 import sqlite3
 import threading
@@ -23,6 +26,11 @@ ALLOWED_ORIGINS = os.environ.get(
     "COMMENT_ORIGINS", "https://gsomani.github.io"
 ).split(",")
 CONTACT_THREAD = int(os.environ.get("COMMENT_CONTACT_THREAD", "3"))
+# Only these thread ids (the `issue:` values in page front matter) are accepted.
+THREADS = {
+    int(t) for t in os.environ.get("COMMENT_THREADS", "2,3,5").split(",") if t.strip()
+}
+THREADS.add(CONTACT_THREAD)
 TRUST_PROXY = os.environ.get("COMMENT_TRUST_PROXY") == "1"
 
 MAX_BODY = 20_000
@@ -32,6 +40,8 @@ MAX_MESSAGE = 5_000
 RATE_LIMIT_POSTS = 5
 RATE_WINDOW_SECONDS = 600
 UPVOTE_LIMIT = 20
+GLOBAL_POSTS_PER_HOUR = int(os.environ.get("COMMENT_GLOBAL_PER_HOUR", "60"))
+MAX_TRACKED_KEYS = 10_000
 
 ROUTE = re.compile(r"^/api/(comments|upvotes)/(\d{1,9})/?$")
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -53,21 +63,56 @@ def openDb():
             createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
         );
         CREATE INDEX IF NOT EXISTS commentsThread ON comments(thread);
+        CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS upvotes (
             thread INTEGER PRIMARY KEY,
             count INTEGER NOT NULL DEFAULT 0
         );
         """
     )
+    columns = [row[1] for row in db.execute("PRAGMA table_info(comments)")]
+    if "ipHash" not in columns:
+        db.execute("ALTER TABLE comments ADD COLUMN ipHash TEXT NOT NULL DEFAULT ''")
+    db.execute("CREATE INDEX IF NOT EXISTS commentsIp ON comments(ipHash, createdAt)")
+    db.execute(
+        "INSERT OR IGNORE INTO meta(key, value) VALUES('salt', ?)",
+        (secrets.token_hex(16),),
+    )
+    db.commit()
     return db
 
 
 db = openDb()
+SALT = db.execute("SELECT value FROM meta WHERE key='salt'").fetchone()[0]
+
+
+def ipKey(ip):
+    """Normalise an address; IPv6 is grouped by /64 so rotating addresses doesn't help."""
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return ip
+    if addr.version == 6:
+        if addr.ipv4_mapped:
+            return str(addr.ipv4_mapped)
+        return str(ipaddress.ip_network(f"{ip}/64", strict=False).network_address)
+    return str(addr)
+
+
+def ipHash(ip):
+    return hashlib.sha256((SALT + ipKey(ip)).encode()).hexdigest()[:16]
+
+
+def isoTime(secondsAgo):
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - secondsAgo))
 
 
 def rateLimited(ip, limit, kind):
     now = time.time()
-    key = (ip, kind)
+    if len(hits) > MAX_TRACKED_KEYS:
+        for oldKey in [k for k, v in hits.items() if not v or now - v[-1] >= RATE_WINDOW_SECONDS]:
+            del hits[oldKey]
+    key = (ipKey(ip), kind)
     recent = [t for t in hits.get(key, []) if now - t < RATE_WINDOW_SECONDS]
     if len(recent) >= limit:
         hits[key] = recent
@@ -101,6 +146,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def originAllowed(self):
+        return self.headers.get("Origin", "") in ALLOWED_ORIGINS
+
     def do_OPTIONS(self):
         self.send(204)
 
@@ -109,7 +157,11 @@ class Handler(BaseHTTPRequestHandler):
         if not match:
             self.send(404, {"error": "not found"})
             return None
-        return match.group(1), int(match.group(2))
+        thread = int(match.group(2))
+        if thread not in THREADS:
+            self.send(404, {"error": "unknown thread"})
+            return None
+        return match.group(1), thread
 
     def do_GET(self):
         found = self.route()
@@ -157,6 +209,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         kind, thread = found
         ip = self.clientIp()
+        if not self.originAllowed():
+            return self.send(403, {"error": "origin not allowed"})
 
         if kind == "upvotes":
             if rateLimited(ip, UPVOTE_LIMIT, "upvote"):
@@ -172,6 +226,9 @@ class Handler(BaseHTTPRequestHandler):
                 ).fetchone()[0]
             return self.send(200, {"upvotes": count})
 
+        contentType = self.headers.get("Content-Type", "").split(";")[0].strip().lower()
+        if contentType != "application/json":
+            return self.send(415, {"error": "content-type must be application/json"})
         data = self.readJson()
         if data is None:
             return
@@ -186,12 +243,21 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(400, {"error": "invalid email"})
         if thread == CONTACT_THREAD and not email:
             return self.send(400, {"error": "email required"})
-        if rateLimited(ip, RATE_LIMIT_POSTS, "post"):
-            return self.send(429, {"error": "too many comments, try later"})
+        author = ipHash(ip)
         with dbLock, db:
+            perIp = db.execute(
+                "SELECT COUNT(*) FROM comments WHERE ipHash=? AND createdAt>?",
+                (author, isoTime(RATE_WINDOW_SECONDS)),
+            ).fetchone()[0]
+            overall = db.execute(
+                "SELECT COUNT(*) FROM comments WHERE createdAt>?", (isoTime(3600),)
+            ).fetchone()[0]
+            if perIp >= RATE_LIMIT_POSTS or overall >= GLOBAL_POSTS_PER_HOUR:
+                return self.send(429, {"error": "too many comments, try later"})
             cur = db.execute(
-                "INSERT INTO comments(thread, name, email, message) VALUES(?,?,?,?)",
-                (thread, name, email, message),
+                "INSERT INTO comments(thread, name, email, message, ipHash) "
+                "VALUES(?,?,?,?,?)",
+                (thread, name, email, message, author),
             )
         self.send(201, {"id": cur.lastrowid})
 
