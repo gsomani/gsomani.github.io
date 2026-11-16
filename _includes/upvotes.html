@@ -1,14 +1,11 @@
 <script>
-  function upvote(issue) {
-      const key = `upvote_gsomani_${issue}`;
-      upvoted = localStorage.getItem(key);
-      if (!upvoted){
-        upvoted = true;
-        localStorage.setItem(key, upvoted);
-        readUpvotes(issue, update=true);
-      }
+  // Key is versioned: the old GitHub-issue system used "upvote_gsomani_<n>", which can
+  // linger in visitors' browsers and silently block voting on the same thread numbers.
+  function upvote(thread) {
+    const key = `upvoteV2_${thread}`;
+    if (localStorage.getItem(key)) return;
+    readUpvotes(thread, true, () => localStorage.setItem(key, "1"));
   }
-
 </script>
 
 <button id="upvote-button" onclick="upvote({{page.issue}})" style= "cursor:pointer" >👍</button>

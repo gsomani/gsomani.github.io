@@ -47,10 +47,16 @@ function showUpvotes(count) {
   button.innerText = count > 0 ? "👍" + count : "👍";
 }
 
-function readUpvotes(thread, update = false) {
+function readUpvotes(thread, update = false, onSuccess = null) {
   fetch(`${commentApi}/api/upvotes/${thread}`, {method: update ? "POST" : "GET"})
-    .then(response => response.json())
-    .then(data => showUpvotes(data.upvotes))
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      showUpvotes(data.upvotes);
+      if (onSuccess) onSuccess();
+    })
     .catch(error => console.error('Error fetching upvotes:', error));
 }
 
